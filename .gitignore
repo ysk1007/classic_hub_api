@@ -1,0 +1,49 @@
+### Java / Maven ###
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.log
+*.class
+*.war
+*.ear
+
+### Spring Boot ###
+application.properties
+application-*.yml
+application-*.properties
+*.iml
+
+### React / Node.js ###
+node_modules/
+dist/
+build/
+.vite/
+.vscode/
+*.local
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+### IDE ###
+.idea/
+*.iws
+*.ipr
+*.iml
+.project
+.classpath
+.settings/
+.springBeans/
+.sts4-cache/
+
+### Mac / Windows ###
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+### Others ###
+/upload/
+logs/
