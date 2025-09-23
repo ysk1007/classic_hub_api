@@ -7,12 +7,12 @@ import com.example.classicHub.dto.JoinDto;
 import com.example.classicHub.service.UserService;
 
 @RestController
-public class JoinController {
+public class UserController {
 	
 	private final UserService userService;
 	
 	/** 생성자 주입 **/
-	public JoinController(UserService userService) {
+	public UserController(UserService userService) {
 		this.userService = userService;
 	}
 	

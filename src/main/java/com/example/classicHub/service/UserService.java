@@ -26,7 +26,7 @@ public class UserService {
 		String password = joinDto.getPassword();
 		String name = joinDto.getName();
 		
-		boolean isExist = userRepository.existsByEmail(email);	// 이메일로 회원가입 되어있는지 확인
+		boolean isExist = userRepository.existsByEmail(email);		// 이메일로 회원가입 되어있는지 확인
 		
 		if(isExist) {	// 사용중
 			return false;
@@ -34,11 +34,11 @@ public class UserService {
 		
 		User user = new User();
 		user.setEmail(email);
-		user.setPassword(bCryptPasswordEncoder.encode(password));
+		user.setPassword(bCryptPasswordEncoder.encode(password));	// 패스워드는 꼭 암호화
 		user.setName(name);
-		user.setRole("ROLE_ADMIN");
+		user.setRole("ROLE_ADMIN");									// 임시 역할
 		
-		userRepository.save(user);
+		userRepository.save(user);									// 실제 DB 저장
 		
 		return true;
 	}
