@@ -14,6 +14,7 @@ public class CustomUserDetailsService implements UserDetailsService{
 
 	private final UserRepository userRepository;
 	
+	/** 생성자 **/
 	public CustomUserDetailsService(UserRepository userRepository) {
 		this.userRepository = userRepository; 
 	}
@@ -21,10 +22,10 @@ public class CustomUserDetailsService implements UserDetailsService{
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-		User user = userRepository.findByEmail(email);
+		User user = userRepository.findByEmail(email);	// 이메일로 해당 이메일을 사용하는 유저를 검색
 		
-		if(user != null) {
-			return new CustomUserDetails(user);
+		if(user != null) {								// USER가 있으면
+			return new CustomUserDetails(user);			// CustomUserDetails를 반환
 		}
 		
 		return null;
