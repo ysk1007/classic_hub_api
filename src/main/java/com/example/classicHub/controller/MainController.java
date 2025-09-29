@@ -9,11 +9,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.classicHub.entity.User;
+import com.example.classicHub.service.NewsSearchService;
+
 @RestController
 public class MainController {
+	
+	private final NewsSearchService newSearchService;
+	
+	public MainController(NewsSearchService newSearchService) {
+		this.newSearchService = newSearchService;
+	}
 
 	@GetMapping("/")
-	public String mainP() {
+	public User mainP() {
 		
 		// 현재 세션 사용자 이메일
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -26,7 +35,12 @@ public class MainController {
 		GrantedAuthority auth = iter.next();
 		String role = auth.getAuthority();
 		
-		return "main page " + email + " " + role;
+		User user = new User();
+		user.setEmail(email);
+		user.setRole(role);
+		
+		newSearchService.main(null);
+		return user;
 	}
 	
 	@GetMapping("/admin")
