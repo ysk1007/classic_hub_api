@@ -9,11 +9,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 import com.example.classicHub.dto.NaverNewsResponse;
 import com.example.classicHub.dto.NaverNewsResponse.NaverNewsItem;
+import com.example.classicHub.entity.News;
+import com.example.classicHub.repository.NewsRepository;
+import com.example.classicHub.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -28,18 +28,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class NewsSearchService {
 
-	private static String clientId; 	//애플리케이션 클라이언트 아이디
-	private static String clientSecret; //애플리케이션 클라이언트 시크릿
+	private static String clientId; 				//애플리케이션 클라이언트 아이디
+	private static String clientSecret; 			//애플리케이션 클라이언트 시크릿
+	private static NewsRepository newsRepository;
 	
 	/** 생성자 **/
 	public NewsSearchService(@Value("${spring.naver.id}")String clientId
-							,@Value("${spring.naver.secret}")String clientSecret) {
+							,@Value("${spring.naver.secret}")String clientSecret
+							,NewsRepository newsRepository, UserRepository userRepository) {
 
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
+		this.newsRepository = newsRepository;
     }
 	
-    public static void main(String[] args) {
+	/** 뉴스 서치 **/
+    public void newsSearch() {
     	
         String text = null;
         try {
@@ -49,7 +53,7 @@ public class NewsSearchService {
         }
 
 
-        String apiURL = "https://openapi.naver.com/v1/search/news?sort=sim&query=" + text;    // JSON 결과
+        String apiURL = "https://openapi.naver.com/v1/search/news?display=100&sort=sim&query=" + text;    // JSON 결과
         // String apiURL = "https://openapi.naver.com/v1/search/news.xml?sort=sim&query="+ text; // XML 결과
 
 
@@ -60,7 +64,7 @@ public class NewsSearchService {
         
     }
 
-
+    /** 뉴스 서치 **/
     private static String get(String apiUrl, Map<String, String> requestHeaders){
         HttpURLConnection con = connect(apiUrl);
         try {
@@ -83,7 +87,7 @@ public class NewsSearchService {
         }
     }
 
-
+    /** api 연결 **/
     private static HttpURLConnection connect(String apiUrl){
         try {
             URL url = new URL(apiUrl);
@@ -95,7 +99,7 @@ public class NewsSearchService {
         }
     }
 
-
+    /** 결과 읽기 **/
     private static String readBody(InputStream body){
         InputStreamReader streamReader = new InputStreamReader(body);
 
@@ -109,31 +113,32 @@ public class NewsSearchService {
             	// System.out.println(line);
                 responseBody.append(line);
             }
-
+            
+            // 여기서 부터 DB에 저장
+            
             ObjectMapper objectMapper = new ObjectMapper();
 
 	        // response.toString() 은 JSON 문자열
-	        NaverNewsResponse nnr = objectMapper.readValue(responseBody.toString(), NaverNewsResponse.class);
+	        NaverNewsResponse naverNewsResponse = objectMapper.readValue(responseBody.toString(), NaverNewsResponse.class);
 	         
-	        List<NaverNewsItem> list = nnr.getItems();
+	        List<NaverNewsItem> list = naverNewsResponse.getItems();
 
-	        // 1) 입력 포맷 정의 (RFC 822)
-	        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(
-	                "EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
-
-	        // 2) 출력 포맷 정의 (DB 형식)
-	        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern(
-	                "yyyy-MM-dd HH:mm:ss");
-
-	        // 3) 변환
-	        ZonedDateTime zonedDateTime = ZonedDateTime.parse(list.getFirst().getPubDate(), inputFormatter);
-	        String formatted = zonedDateTime.format(outputFormatter);
-
-	        System.out.println("변환 결과: " + formatted);
-			/*
-			 * for (NaverNewsItem naverNewsItem : list) {
-			 * System.out.println(naverNewsItem.toString()); }
-			 */
+	        for(NaverNewsItem naverNewsItem : list) {
+	        	News saveNews = new News();
+	        	
+	        	if(newsRepository.existsByNewsUrl(naverNewsItem.getOriginallink())){
+	        		continue;
+	        	}
+	        	
+	        	saveNews.setArtistId(1);
+	        	saveNews.setTitle(naverNewsItem.getTitle());			// 제목
+	        	saveNews.setNewsUrl(naverNewsItem.getOriginallink());	// 기사 링크
+	        	saveNews.setUploadAt(naverNewsItem.getPubDate());		// 발행일
+	        	
+	        	newsRepository.save(saveNews);
+	        }
+	        
+			// DB 저장 끝
 
 
             return responseBody.toString();

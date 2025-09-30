@@ -10,16 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.classicHub.entity.User;
-import com.example.classicHub.service.NewsSearchService;
 
 @RestController
 public class MainController {
-	
-	private final NewsSearchService newSearchService;
-	
-	public MainController(NewsSearchService newSearchService) {
-		this.newSearchService = newSearchService;
-	}
 
 	@GetMapping("/")
 	public User mainP() {
@@ -39,7 +32,6 @@ public class MainController {
 		user.setEmail(email);
 		user.setRole(role);
 		
-		newSearchService.main(null);
 		return user;
 	}
 	
