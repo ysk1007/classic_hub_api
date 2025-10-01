@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -131,7 +132,12 @@ public class NewsSearchService {
 	        	}
 	        	
 	        	saveNews.setArtistId(1);
-	        	saveNews.setTitle(naverNewsItem.getTitle());			// 제목
+	        	
+	        	String title = naverNewsItem.getTitle()
+	        	        .replaceAll("<(/)?b>", ""); // 태그 제거
+	        	title = StringEscapeUtils.unescapeHtml4(title); // HTML 엔티티 변환
+	        	
+	        	saveNews.setTitle(title);			// 제목
 	        	saveNews.setNewsUrl(naverNewsItem.getOriginallink());	// 기사 링크
 	        	saveNews.setUploadAt(naverNewsItem.getPubDate());		// 발행일
 	        	

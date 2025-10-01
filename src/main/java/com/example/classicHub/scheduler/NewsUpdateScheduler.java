@@ -25,6 +25,6 @@ public class NewsUpdateScheduler {
 		
 		newsSearchService.newsSearch();	// 네이버 api 뉴스 크롤링		
 		
-		newsService.newsUpdate();		// 뉴스 본문 크롤링 후, 업데이트
+		// newsService.newsUpdate();		// 뉴스 본문 크롤링 후, 업데이트
 	}
 }
